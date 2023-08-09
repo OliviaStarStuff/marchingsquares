@@ -26,7 +26,6 @@ Clone this repository and run in folder using `python app.py` or `python3 app.py
   * Regenerate map
 * X - Show debug
   * show values
-
 ## Todo
 * Use simplex or perlin noise to generate maps
 * Add relative boundary shaping
