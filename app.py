@@ -66,8 +66,8 @@ class App:
                 self.draw_dots(row, col, coords)
                 self.draw_boundary_lines(boundary_id, coords)
         instruction_text = "f:flat shade dots|g:paint exterior dots|"
-        instruction_text += "v:paint interior dots|f:flat shade dots|"
-        instruction_text +="g:paint exterior dots|v:paint interior dots"
+        instruction_text += "v:paint interior dots|h:shade interior|"
+        instruction_text +="r:reload|x:show debug"
         text = self.font.render(instruction_text, True, WHITE)
         self.screen.blit(text, self.CENTER + (-text.get_width()/2, self.CENTER.y - 24))
         text = self.font.render("WASD:Expand/Shrink", True, WHITE)
