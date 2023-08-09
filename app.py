@@ -249,19 +249,25 @@ class App:
     def draw_debug_text(self) -> None:
         for row in range(self.row_num):
             for col in range(self.col_num):
-                text_height = -8
+                colour = WHITE
                 coords = self.cell_coords_to_window_coords(row, col)
                 if self.is_debug_on & 1:
                     boundary_id = self.determine_boundary_value(row, col)
                     text_content = f"{boundary_id}"
-                    text = self.font.render(text_content, True, WHITE)
-                    self.screen.blit(text, coords + (-12, text_height))
+                    text = self.font.render(text_content, True, colour)
+                    coords2 = coords + (self.size/2, self.size/2)
+                    coords2 -= (text.get_width()/2, text.get_height()/2)
+                    self.screen.blit(text, coords2)
+                    polygon = BOUNDARIES[Edge.ABCD][::2]
+                    polygon_2 = [point * self.size + coords for point in polygon]
+                    pg.draw.lines(self.screen, BLACK, True, polygon_2)
                 if self.is_debug_on & 2:
-                    text_content = f"{self.grid[row][col]:.1f}"
-                    text = self.font.render(text_content, True, WHITE)
-                    if self.is_debug_on & 1:
-                        text_height += 14
-                    self.screen.blit(text, coords + (-text.get_width()/2, text_height))
+                    cell_value = self.grid[row][col]
+                    if self.is_show_inner_dots and cell_value > self.threshold:
+                        colour = BLACK
+                    text_content = f"{cell_value:.1f}".lstrip('0')
+                    text = self.font.render(text_content, True, colour)
+                    self.screen.blit(text, coords + (-text.get_width()/2, -8))
 
 
 def main() -> None:
