@@ -49,8 +49,8 @@ class App:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.running = False
-            if event.type == pg.KEYDOWN:
-                self.check_user_input()
+
+            self.check_user_input(event)
 
         # fill the screen with a color to wipe away anything from last frame
         self.screen.fill((64,64,80))
@@ -79,25 +79,26 @@ class App:
         pg.display.flip()
 
     """Check for user input"""
-    def check_user_input(self):
+    def check_user_input(self, event: pg.event) -> None:
         keys = pg.key.get_pressed()
+        if event.type == pg.KEYDOWN:
         # Toggles
-        if keys[pg.K_f]:
-            self.last_time = pg.time.get_ticks()
-            self.is_flat_dots = not self.is_flat_dots
-        if keys[pg.K_g]:
-            self.last_time = pg.time.get_ticks()
-            self.is_show_outer_dots = not self.is_show_outer_dots
-        if keys[pg.K_h]:
-            self.last_time = pg.time.get_ticks()
-            self.is_inner_shaded = not self.is_inner_shaded
-        if keys[pg.K_x]:
-            self.is_debug_on = not self.is_debug_on
-        if keys[pg.K_v]:
-            self.is_show_inner_dots = not self.is_show_inner_dots
-        # Restart
-        if keys[pg.K_r]:
-           self.restart()
+            if keys[pg.K_f]:
+                self.last_time = pg.time.get_ticks()
+                self.is_flat_dots = not self.is_flat_dots
+            if keys[pg.K_g]:
+                self.last_time = pg.time.get_ticks()
+                self.is_show_outer_dots = not self.is_show_outer_dots
+            if keys[pg.K_h]:
+                self.last_time = pg.time.get_ticks()
+                self.is_inner_shaded = not self.is_inner_shaded
+            if keys[pg.K_x]:
+                self.is_debug_on = not self.is_debug_on
+            if keys[pg.K_v]:
+                self.is_show_inner_dots = not self.is_show_inner_dots
+            # Restart
+            if keys[pg.K_r]:
+                self.restart()
         # Expand/Shrink/Scale
         if keys[pg.K_a]:
             self.col_num -= 1
@@ -114,7 +115,7 @@ class App:
             self.row_num += 1
             self.grid.append([random.random() for i in range(self.col_num)])
         if keys[pg.K_q]:
-            self.size = max(self.size-5, 0)
+            self.size = max(self.size-5, 5)
         if keys[pg.K_e]:
             self.size = min(self.size+5, 100)
 
