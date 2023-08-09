@@ -24,8 +24,8 @@ Clone this repository and run in folder using `python app.py` or `python3 app.py
   * Shade the inside of the boundary with blue
 * R - Reload
   * Regenerate map
-* X - Show debug
-  * show values
+* X - Cycle debug Mode (1=Group Value, 2=Cell Value, 4=Colours)
+  * Uses 3 bitflags and cycles through 8
 ## Todo
 * Use simplex or perlin noise to generate maps
 * Add relative boundary shaping
