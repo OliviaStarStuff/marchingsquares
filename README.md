@@ -3,21 +3,29 @@
 An implementation of binary marching squares
 ## Setup
 ### Requirements
-Pygame 2.4.0
-Python 3.9.12
+* Pygame 2.4.0
+* Python 3.9.12
 ### Installation
 Clone this repository and run in folder using `python app.py` or `python3 app.py`.
 
 ## Controls
-* F - Flat shade dots
-* G - Paint exterior dots
-* V - Paint interior dots
-* H - Shade interior
-* R - Reload
-* X - Show debug
+### Movement Controls
 * W/S - Shrink Expand Y Axis
 * A/D - Shrink/Expand on the X Axis
 * Q/E - Zoom in/out
+### Toggles
+* F - Flat shade dots
+  * forgoes gradient and paints dots either black or white
+* G - Show exterior dots
+  * dots outside of boundary (black on gray)
+* V - Show interior dots
+  * dots inside of boundary (white on blue)
+* H - Shade interior
+  * Shade the inside of the boundary with blue
+* R - Reload
+  * Regenerate map
+* X - Show debug
+  * show values
 
 ## Todo
 * Use simplex or perlin noise to generate maps
