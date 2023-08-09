@@ -6,7 +6,9 @@ from edges import BOUNDARIES, Edge
 WHITE = pg.Color(255, 255, 255)
 BLACK = pg.Color(0, 0, 0)
 ROTATION = pg.Vector2(-1, 1)
-
+INSTRUCTION_TEXT = "f:flat shade dots|g:paint exterior dots|"\
+                 + "v:paint interior dots|h:shade interior|"\
+                 + "r:reload|x:show debug"
 """
 The container for marching cube simulation app
 """
@@ -65,10 +67,8 @@ class App:
                     self.fill_boundary_spaces(boundary_id, coords)
                 self.draw_dots(row, col, coords)
                 self.draw_boundary_lines(boundary_id, coords)
-        instruction_text = "f:flat shade dots|g:paint exterior dots|"
-        instruction_text += "v:paint interior dots|h:shade interior|"
-        instruction_text +="r:reload|x:show debug"
-        text = self.font.render(instruction_text, True, WHITE)
+
+        text = self.font.render(INSTRUCTION_TEXT, True, WHITE)
         self.screen.blit(text, self.CENTER + (-text.get_width()/2, self.CENTER.y - 24))
         text = self.font.render("WASD:Expand/Shrink|QE:Zoom in/out ", True, WHITE)
         self.screen.blit(text, self.CENTER + (-text.get_width()/2, -self.CENTER.y + 12))
@@ -101,20 +101,25 @@ class App:
                 self.restart()
         # Expand/Shrink/Scale
         if keys[pg.K_a]:
-            self.col_num -= 1
-            for i in range(self.row_num):
-                self.grid[i] = self.grid[i][:-1]
+            temp = self.col_num-1
+            self.col_num = max(self.col_num-1, 1)
+            if temp == self.col_num:
+                for i in range(self.row_num):
+                    self.grid[i] = self.grid[i][:-1]
         if keys[pg.K_d]:
-            self.col_num += 1
+            self.col_num = min(self.col_num+1, 100)
             for i in range(self.row_num):
                 self.grid[i].append(random.random())
         if keys[pg.K_w]:
-            self.row_num -= 1
-            self.grid = self.grid[:-1]
+            temp = self.row_num-1
+            self.row_num = max(self.row_num-1, 1)
+            if temp == self.row_num:
+                self.grid = self.grid[:-1]
         if keys[pg.K_s]:
-            self.row_num += 1
+            self.row_num = min(self.row_num+1, 100)
             self.grid.append([random.random() for i in range(self.col_num)])
         if keys[pg.K_q]:
+            changed = True
             self.size = max(self.size-5, 5)
         if keys[pg.K_e]:
             self.size = min(self.size+5, 100)
@@ -226,20 +231,20 @@ class App:
         return [[random.random() for i in range(columns)] for j in range(rows)]
 
     """restart the simulation"""
-    def restart(self):
+    def restart(self) -> None:
         self.grid = self.randomGrid(
                 self.row_num, self.col_num)
 
-    def draw_debug_text(self):
+    def draw_debug_text(self) -> None:
         for row in range(self.row_num):
             for col in range(self.col_num):
                 boundary_id = self.determine_boundary_value(row, col)
                 coords = self.cell_coords_to_window_coords(row, col)
-                text = self.font.render(f"{boundary_id}", True, (0,0,255))
+                text = self.font.render(f"{boundary_id}", True, WHITE)
                 self.screen.blit(text, coords + (-6, -6))
 
 
-def main():
+def main() -> None:
     sim_specs = {"threshold":0.5, "framerate":40}
     grid_specs = {"size":20, "cols":30, "rows":30, "bg_colour": (64, 64, 80)}
     app = App((1600, 768), sim_specs, grid_specs)
