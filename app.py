@@ -18,7 +18,7 @@ class App:
     is_show_inner_dots = True
     is_flat_dots = True
     is_inner_shaded = True
-    is_debug_on = False
+    is_debug_on = 0
     interval = 200
     last_time = 0
     dt = 0
@@ -72,7 +72,7 @@ class App:
         self.screen.blit(text, self.CENTER + (-text.get_width()/2, self.CENTER.y - 24))
         text = self.font.render("WASD:Expand/Shrink|QE:Zoom in/out ", True, WHITE)
         self.screen.blit(text, self.CENTER + (-text.get_width()/2, -self.CENTER.y + 12))
-        if self.is_debug_on:
+        if self.is_debug_on > 0:
             self.draw_debug_text()
         # maintain framerate
         self.dt = self.clock.tick(self.framerate)
@@ -93,7 +93,7 @@ class App:
                 self.last_time = pg.time.get_ticks()
                 self.is_inner_shaded = not self.is_inner_shaded
             if keys[pg.K_x]:
-                self.is_debug_on = not self.is_debug_on
+                self.is_debug_on = (self.is_debug_on + 1) % 8
             if keys[pg.K_v]:
                 self.is_show_inner_dots = not self.is_show_inner_dots
             # Restart
@@ -141,38 +141,49 @@ class App:
         boundaries = BOUNDARIES.get(boundary_id, ())
         colour = (0,0,255)
         for i in range(0,len(boundaries), 2):
-            origin = boundaries[i+1].copy()
+            center_point = boundaries[i+1].copy()
             polygon = [boundaries[i], boundaries[i+1]]
             if boundary_id in [Edge.AB, Edge.CD, Edge.BD, Edge.AC]: #horizontal
+                if self.is_debug_on & 4:
+                    colour = (0, 224, 64)
                 diff = (boundaries[i+1] - boundaries[i])/2
-                origin = boundaries[i] - diff.yx
-                origin_2 = boundaries[i+1] - diff.yx
-                polygon.append(origin_2)
-                polygon.append(origin)
+                left_point = boundaries[i] - diff.yx
+                right_point = boundaries[i+1] - diff.yx
+                polygon.append(right_point)
+                polygon.append(left_point)
             elif boundary_id in [Edge.ABC, Edge.ABD, Edge.ACD, Edge.BCD]: #horizontal
-                if self.is_debug_on:
-                    colour = (255,0,255)
-                origin_3 = boundaries[i+1] * 2 - boundaries[i]
-                origin_3.update([pg.math.clamp(p, 0 ,1) for p in origin_3])
-                origin_2 = origin_3 - (0.5, 0.5)
-                origin_2 = origin_2.yx.elementwise() * ROTATION
-                origin = origin_2.yx.elementwise() * ROTATION
+                if self.is_debug_on & 4:
+                    if boundary_id == Edge.ABC:
+                        colour = (255, 0, 255)
+                    if boundary_id == Edge.ABD:
+                        colour = (128, 0, 80)
+                    if boundary_id == Edge.ACD:
+                        colour = (200, 0, 100)
+                    if boundary_id == Edge.BCD:
+                        colour = (144, 0, 144)
+                right_point = boundaries[i+1] * 2 - boundaries[i]
+                right_point.update([pg.math.clamp(p, 0 ,1) for p in right_point])
+                center_point = right_point - (0.5, 0.5)
+                center_point = center_point.yx.elementwise() * ROTATION
+                left_point = center_point.yx.elementwise() * ROTATION
 
-                polygon.append(origin_3)
-                polygon.append(origin_2 + (0.5, 0.5))
-                polygon.append(origin + (0.5, 0.5))
+                polygon.append(right_point)
+                polygon.append(center_point + (0.5, 0.5))
+                polygon.append(left_point + (0.5, 0.5))
             elif boundary_id == Edge.ABCD:
+                if self.is_debug_on & 4:
+                    colour = (224, 224, 64)
                 polygon = boundaries[::2]
             else:
-                if origin.y == 1 and origin.x == 0.5:
-                    origin.x = 1
-                elif origin.y == 0 and origin.x == 0.5:
-                    origin.x = 0
-                elif origin.x == 1 and origin.y == 0.5:
-                    origin.y = 0
-                elif origin.x == 0 and origin.y == 0.5:
-                    origin.y = 1
-                polygon.append(origin)
+                if self.is_debug_on & 4:
+                    colour = (0, 48, 80)
+                    if boundary_id in [Edge.A, Edge.B, Edge.C, Edge.D]:
+                        colour = (0, 128, 180)
+                if center_point.x == 0.5:
+                    center_point.x = 1 if center_point.y == 1 else 0
+                elif center_point.y == 0.5:
+                    center_point.y = 0 if center_point.x == 1 else 1
+                polygon.append(center_point)
             polygon_2 = [point * self.size + coords for point in polygon]
             pg.draw.polygon(self.screen, colour, polygon_2)
 
@@ -238,10 +249,19 @@ class App:
     def draw_debug_text(self) -> None:
         for row in range(self.row_num):
             for col in range(self.col_num):
-                boundary_id = self.determine_boundary_value(row, col)
+                text_height = -8
                 coords = self.cell_coords_to_window_coords(row, col)
-                text = self.font.render(f"{boundary_id}", True, WHITE)
-                self.screen.blit(text, coords + (-6, -6))
+                if self.is_debug_on & 1:
+                    boundary_id = self.determine_boundary_value(row, col)
+                    text_content = f"{boundary_id}"
+                    text = self.font.render(text_content, True, WHITE)
+                    self.screen.blit(text, coords + (-12, text_height))
+                if self.is_debug_on & 2:
+                    text_content = f"{self.grid[row][col]:.1f}"
+                    text = self.font.render(text_content, True, WHITE)
+                    if self.is_debug_on & 1:
+                        text_height += 14
+                    self.screen.blit(text, coords + (-text.get_width()/2, text_height))
 
 
 def main() -> None:
