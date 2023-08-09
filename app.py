@@ -70,7 +70,7 @@ class App:
         instruction_text +="r:reload|x:show debug"
         text = self.font.render(instruction_text, True, WHITE)
         self.screen.blit(text, self.CENTER + (-text.get_width()/2, self.CENTER.y - 24))
-        text = self.font.render("WASD:Expand/Shrink", True, WHITE)
+        text = self.font.render("WASD:Expand/Shrink|QE:Zoom in/out ", True, WHITE)
         self.screen.blit(text, self.CENTER + (-text.get_width()/2, -self.CENTER.y + 12))
         if self.is_debug_on:
             self.draw_debug_text()
@@ -81,6 +81,7 @@ class App:
     """Check for user input"""
     def check_user_input(self):
         keys = pg.key.get_pressed()
+        # Toggles
         if keys[pg.K_f]:
             self.last_time = pg.time.get_ticks()
             self.is_flat_dots = not self.is_flat_dots
@@ -90,8 +91,14 @@ class App:
         if keys[pg.K_h]:
             self.last_time = pg.time.get_ticks()
             self.is_inner_shaded = not self.is_inner_shaded
+        if keys[pg.K_x]:
+            self.is_debug_on = not self.is_debug_on
+        if keys[pg.K_v]:
+            self.is_show_inner_dots = not self.is_show_inner_dots
+        # Restart
         if keys[pg.K_r]:
            self.restart()
+        # Expand/Shrink/Scale
         if keys[pg.K_a]:
             self.col_num -= 1
             for i in range(self.row_num):
@@ -106,10 +113,11 @@ class App:
         if keys[pg.K_s]:
             self.row_num += 1
             self.grid.append([random.random() for i in range(self.col_num)])
-        if keys[pg.K_x]:
-            self.is_debug_on = not self.is_debug_on
-        if keys[pg.K_v]:
-            self.is_show_inner_dots = not self.is_show_inner_dots
+        if keys[pg.K_q]:
+            self.size = max(self.size-5, 0)
+        if keys[pg.K_e]:
+            self.size = min(self.size+5, 100)
+
 
     """Draws the boundary lines"""
     def draw_boundary_lines(self, boundary_id: int, coords: pg.Vector2) -> None:

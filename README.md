@@ -13,5 +13,6 @@ Requires Pygame 2.4.0
 * H - Shade interior
 * R - Reload
 * X - Show debu
-* W/S - Shrink Exapnd Y Axis
+* W/S - Shrink Expand Y Axis
 * A/D - Shrink/Expand on the X Axis
+* Q/E - Zoom in/out
