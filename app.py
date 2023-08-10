@@ -18,16 +18,16 @@ The container for marching cube simulation app
 class App:
     running = True
     is_show_outer_dots = False
-    is_show_inner_dots = True
-    is_flat_dots = True
+    is_show_inner_dots = False
+    is_flat_dots = False
     is_inner_shaded = True
     is_debug_on = 0
+    is_draw_ground = False
+    is_animated = True
+    is_draw_lines = False
     interval = 200
     last_time = 0
-    is_animated = True
     frame = 0
-    is_draw_ground = False
-    is_draw_lines = True
     dt = 0
     offset = pg.Vector2(0,0)
 
