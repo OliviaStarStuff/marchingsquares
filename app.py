@@ -162,27 +162,28 @@ class App:
             # Scale
             if keys[pg.K_z]:
                 changed = True
-                self.scale = max(self.scale/1.2, 0)
-                self.offset = self.offset.elementwise() - pg.Vector2(1,1)/self.scale
+                temp = self.scale/1.2
+                self.scale = max(temp, 0)
+                if self.scale == temp:
+                    self.offset = self.offset.elementwise() - pg.Vector2(3.3,1.5)/self.scale
             if keys[pg.K_c]:
                 changed = True
-                sizes = pg.Vector2(self.size, self.size)
-                # sizes*=self.scale/2
-
-                self.scale = min(self.scale*1.2, 100)
-                self.offset = self.offset.elementwise() + pg.Vector2(1,1)/self.scale
+                temp = self.scale*1.2
+                self.scale = min(temp, 500)
+                if self.scale == temp:
+                    self.offset = self.offset.elementwise() + pg.Vector2(3.9,1.8)/self.scale
             # offset
             if keys[pg.K_UP]:
-                self.offset.y -= 1
+                self.offset.y -= 3/self.scale
                 changed = True
             if keys[pg.K_DOWN]:
-                self.offset.y += 1
+                self.offset.y += 3/self.scale
                 changed = True
             if keys[pg.K_LEFT]:
-                self.offset.x -= 1
+                self.offset.x -= 3/self.scale
                 changed = True
             if keys[pg.K_RIGHT]:
-                self.offset.x += 1
+                self.offset.x += 3/self.scale
                 changed = True
             if changed:
                 self.grid = self.random_grid(self.row_num, self.col_num)
@@ -336,7 +337,7 @@ class App:
             for col in range(self.col_num):
                 colour = WHITE
                 coords = self.cell_coords_to_window_coords(row, col)
-                if self.is_debug_on & 1 and self.col_num-1 != col and self.row_num-1 != row:
+                if self.is_debug_on & 2 and self.col_num-1 != col and self.row_num-2 != row:
                     boundary_id = self.determine_boundary_value(row, col)
                     text_content = f"{boundary_id}"
                     text = self.font.render(text_content, True, colour)
@@ -346,7 +347,7 @@ class App:
                     polygon = BOUNDARIES[Edge.ABCD][::2]
                     polygon_2 = [point * self.size + coords for point in polygon]
                     pg.draw.lines(self.screen, BLACK, True, polygon_2)
-                if self.is_debug_on & 2:
+                if self.is_debug_on & 1:
                     cell_value = self.grid[row][col]
                     if self.is_show_inner_dots and cell_value > self.threshold:
                         colour = BLACK
@@ -369,7 +370,7 @@ def simplex(x: float, y: float, z:float=0, scale=3) -> list[list[float]]:
 
 def main() -> None:
     sim_specs = {"threshold":0, "framerate":40, "is_animated": False}
-    grid_specs = {"size":40, "cols":15, "rows":15, "bg_colour": (64, 64, 80)}
+    grid_specs = {"size":40, "cols":40, "rows":20, "bg_colour": (64, 64, 80)}
     app = App((1600, 768), sim_specs, grid_specs, simplex)
 
     while app.running:
