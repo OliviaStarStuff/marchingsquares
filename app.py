@@ -221,24 +221,16 @@ class App:
             for i in range(0,len(boundaries), 2):
                 center_point = boundaries[i+1].copy()
                 polygon = [boundaries[i], boundaries[i+1]]
+                if self.is_debug_on & 4:
+                    colour = (0, 224, 64)
                 if boundary_id in [Edge.AB, Edge.CD, Edge.BD, Edge.AC]: #horizontal
-                    if self.is_debug_on & 4:
-                        colour = (0, 224, 64)
+
                     diff = (boundaries[i+1] - boundaries[i])/2
                     left_point = boundaries[i] - diff.yx
                     right_point = boundaries[i+1] - diff.yx
                     polygon.append(right_point)
                     polygon.append(left_point)
                 elif boundary_id in [Edge.ABC, Edge.ABD, Edge.ACD, Edge.BCD]: #horizontal
-                    if self.is_debug_on & 4:
-                        if boundary_id == Edge.ABC:
-                            colour = (255, 0, 255)
-                        if boundary_id == Edge.ABD:
-                            colour = (128, 0, 80)
-                        if boundary_id == Edge.ACD:
-                            colour = (200, 0, 100)
-                        if boundary_id == Edge.BCD:
-                            colour = (144, 0, 144)
                     right_point = boundaries[i+1] * 2 - boundaries[i]
                     right_point.update([pg.math.clamp(p, 0 ,1) for p in right_point])
                     center_point = right_point - (0.5, 0.5)
@@ -253,10 +245,6 @@ class App:
                         colour = (224, 224, 64)
                     polygon = boundaries[::2]
                 else:
-                    if self.is_debug_on & 4:
-                        colour = (0, 48, 80)
-                        if boundary_id in [Edge.A, Edge.B, Edge.C, Edge.D]:
-                            colour = (0, 128, 180)
                     if center_point.x == 0.5:
                         center_point.x = 1 if center_point.y == 1 else 0
                     elif center_point.y == 0.5:
@@ -335,24 +323,35 @@ class App:
     def draw_debug_text(self) -> None:
         for row in range(self.row_num):
             for col in range(self.col_num):
-                colour = WHITE
                 coords = self.cell_coords_to_window_coords(row, col)
-                if self.is_debug_on & 2 and self.col_num-1 != col and self.row_num-2 != row:
+                # Draw grid and boundary_id
+                if self.is_debug_on & 2 and self.col_num-1 != col and self.row_num-1 != row:
+                    colour = BLACK
                     boundary_id = self.determine_boundary_value(row, col)
-                    text_content = f"{boundary_id}"
-                    text = self.font.render(text_content, True, colour)
-                    coords2 = coords + (self.size/2, self.size/2)
-                    coords2 -= (text.get_width()/2, text.get_height()/2)
-                    self.screen.blit(text, coords2)
-                    polygon = BOUNDARIES[Edge.ABCD][::2]
-                    polygon_2 = [point * self.size + coords for point in polygon]
-                    pg.draw.lines(self.screen, BLACK, True, polygon_2)
+                    if boundary_id > 0:
+                        if boundary_id in [Edge.A, Edge.B, Edge.C, Edge.D, Edge.AD, Edge.BC]:
+                            colour = WHITE
+                        text_content = f"{boundary_id}"
+                        text = self.font.render(text_content, True, colour)
+                        coords2 = coords + (self.size/2, self.size/2)
+                        coords2 -= (text.get_width()/2, text.get_height()/2)
+                        self.screen.blit(text, coords2)
+                        polygon = BOUNDARIES[Edge.ABCD][::2]
+                        polygon_2 = [point * self.size + coords for point in polygon]
+                        pg.draw.lines(self.screen, BLACK, True, polygon_2)
+                # draw point value
                 if self.is_debug_on & 1:
+                    colour = WHITE
+                    bg_colour = None
                     cell_value = self.grid[row][col]
+                    if not self.is_debug_on & 2 and cell_value > 0.5 or self.is_debug_on & 4 and cell_value > self.threshold:
+                        colour = BLACK
+                    if self.is_debug_on & 6 == 6 and cell_value > self.threshold:
+                        bg_colour = WHITE
                     if self.is_show_inner_dots and cell_value > self.threshold:
                         colour = BLACK
                     text_content = f"{cell_value:.1f}".lstrip('0')
-                    text = self.font_small.render(text_content, True, colour)
+                    text = self.font_small.render(text_content, True, colour, bg_colour)
                     text_center = (text.get_width()/2, text.get_height()/2)
                     self.screen.blit(text, coords - text_center)
 
